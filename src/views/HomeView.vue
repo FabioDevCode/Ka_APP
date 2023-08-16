@@ -49,6 +49,30 @@ function search() {
 		});
 	})
 };
+
+function getPdf() {
+	fetch(`${url_pdf}/pdf`, {
+		headers: {
+		'Accept': 'application/json',
+		'Content-Type': 'application/json'
+		},
+		method: "POST",
+		body: JSON.stringify({
+			url: window.location.href
+		})
+	})
+	.then(resp => resp.arrayBuffer())
+	.then(resp => {
+		const file = new Blob([resp], {type: 'application/pdf'})
+		const url = window.URL.createObjectURL(file);
+		const link = document.createElement('a');
+		link.href = url;
+		link.download = 'entrepise.pdf';
+		document.body.appendChild(link);
+		link.click();
+	})
+	.catch(err => console.error(err));
+}
 </script>
 
 <template>

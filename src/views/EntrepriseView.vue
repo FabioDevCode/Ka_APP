@@ -6,7 +6,9 @@ import { onMounted, ref } from "vue";
 import { useRoute } from 'vue-router';
 
 const url = useApiStore().url;
+const url_pdf = useApiStore().url_pdf;
 const { id } = useRoute().params;
+const loader = ref(false);
 
 let ent = ref({
 	id: 0,
@@ -38,7 +40,14 @@ onMounted(async() => {
 	if(ent.value.latitude && ent.value.longitude) {
 		const mapOptions = {
 			center: [ent.value.latitude, ent.value.longitude],
-			zoom: 14
+			zoom: 14,
+			zoomControl: false,
+			boxZoom: false,
+			doubleClickZoom: false,
+			dragging: false,
+			attributionControl: false,
+			scrollWheelZoom: false,
+			keyboard: false,
 		}
 		// Création d'un objet de carte
 		const map = new L.map('mapContainer', mapOptions);
@@ -57,6 +66,37 @@ onMounted(async() => {
 		top: 0,
 	});
 });
+
+function getPdf() {
+	loader.value = true;
+	document.getElementById('btn_pdf').setAttribute('disabled', 'true');
+
+	fetch(`${url_pdf}/pdf`, {
+		headers: {
+		'Accept': 'application/json',
+		'Content-Type': 'application/json'
+		},
+		method: "POST",
+		body: JSON.stringify({
+			url: window.location.href
+		})
+	})
+	.then(resp => resp.arrayBuffer())
+	.then(resp => {
+		const file = new Blob([resp], {type: 'application/pdf'})
+		const url = window.URL.createObjectURL(file);
+		const link = document.createElement('a');
+		link.href = url;
+		link.download = 'entrepise.pdf';
+		document.body.appendChild(link);
+		link.click();
+		loader.value = false;
+		setTimeout(()=>{
+			document.getElementById('btn_pdf').removeAttribute('disabled');
+		}, 500)
+	})
+	.catch(err => console.error(err));
+}
 </script>
 
 <template>
@@ -106,11 +146,17 @@ onMounted(async() => {
 			</div>
 
 			<!-- Maps -->
-			<div id="mapContainer"></div>
+			<div id="mapContainer" name="mapContainer"></div>
+			<img id="imageMap" src="" alt="">
 		</div>
 
-		<n-button id="btn_pdf" type="error">
-			PDF
+		<n-button @click="getPdf()" id="btn_pdf" type="error">
+			<p v-if="!loader">Télécharger en PDF</p>
+			<template v-if="loader" #icon>
+				<n-icon>
+					<svg class="loader" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6V3"></path><path d="M16.25 7.75L18.4 5.6"></path><path d="M18 12h3"></path><path d="M16.25 16.25l2.15 2.15"></path><path d="M12 18v3"></path><path d="M7.75 16.25L5.6 18.4"></path><path d="M6 12H3"></path><path d="M7.75 7.75L5.6 5.6"></path></g></svg>
+				</n-icon>
+			</template>
 		</n-button>
 	</main>
 </template>
@@ -216,6 +262,19 @@ onMounted(async() => {
 		justify-content: center;
 		align-items: center;
 		font-size: 1.2em;
+	}
+
+	.loader {
+		animation: rotation 1s infinite linear;
+	}
+
+	@keyframes rotation {
+		from {
+			transform: rotate(0deg);
+		}
+		to {
+			transform: rotate(360deg);
+		}
 	}
 
 	@media screen and (max-width: 880px) {
