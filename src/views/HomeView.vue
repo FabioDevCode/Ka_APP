@@ -3,13 +3,14 @@ import { onMounted, ref } from "vue";
 import { useApiStore } from '@/stores/api';
 import Carte from '@/components/Carte.vue';
 
+localStorage.removeItem('ka_app_ent');
+
 const url = useApiStore().url;
 const LIMIT = 12;
 
 const page = ref(1);
 const page_count = ref(50);
 let liste = ref([]);
-
 let input_val = ref();
 
 onMounted(() => {
@@ -50,9 +51,6 @@ function search() {
 		});
 	})
 };
-
-
-
 </script>
 
 <template>
@@ -80,6 +78,7 @@ function search() {
 
 			<hr>
 
+			<p v-if="!liste.length">Aucune entreprise trouvée</p>
 			<div id="gird">
 				<Carte v-for="ent in liste" :key="ent.id" :id="ent.id" :title="ent.nom_raison_sociale" :src="ent.image" />
 			</div>

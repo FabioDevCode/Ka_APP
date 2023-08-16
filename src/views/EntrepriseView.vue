@@ -7,7 +7,7 @@ import { onMounted } from "vue";
 const ent = useEntrepriseStore().ent;
 
 onMounted(() => {
-	if(ent.latitude.length && ent.longitude.length) {
+	if(ent.latitude && ent.longitude) {
 		const mapOptions = {
 			center: [ent.latitude, ent.longitude],
 			zoom: 14
@@ -28,8 +28,7 @@ onMounted(() => {
 	window.scrollTo({
 		top: 0,
 	});
-})
-
+});
 </script>
 
 <template>
@@ -51,7 +50,7 @@ onMounted(() => {
 				</p>
 				<p>
 					Nombre d'établissements : 
-					<span  v-if="ent.nombre_etablissements.length">{{ ent.nombre_etablissements }}</span>
+					<span  v-if="ent.nombre_etablissements?.length">{{ ent.nombre_etablissements }}</span>
 					<span v-else>non communiqué</span>
 				</p>
 				<p>
@@ -82,7 +81,9 @@ onMounted(() => {
 			<div id="mapContainer"></div>
 		</div>
 
-
+		<n-button id="btn_pdf" type="error">
+			PDF
+		</n-button>
 	</main>
 </template>
 
@@ -174,6 +175,10 @@ onMounted(() => {
 		width: 100%;
 		max-width: 800px;
 		height: 400px;
+	}
+
+	#btn_pdf {
+		margin: 0 auto 50px auto;
 	}
 
 	.none_coordonnes {
