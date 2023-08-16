@@ -1,7 +1,7 @@
 <script setup>
 import { onMounted, ref } from "vue";
-import Carte from '@/components/Carte.vue';
 import { useApiStore } from '@/stores/api';
+import Carte from '@/components/Carte.vue';
 
 const url = useApiStore().url;
 const LIMIT = 12;
@@ -9,6 +9,8 @@ const LIMIT = 12;
 const page = ref(1);
 const page_count = ref(50);
 let liste = ref([]);
+
+let input_val = ref();
 
 onMounted(() => {
 	callApi();
@@ -20,27 +22,45 @@ function callApi() {
 	.then(data => {
 		liste.value = data.ent
 		page_count.value = data.pages
-	});
-	window.scrollTo({
-		top: 0,
-		behavior: 'smooth'
+
+		window.scrollTo({
+			top: 0,
+			behavior: 'smooth'
+		});
 	});
 }
 
 function reset() {
-	if(page.value != 1) {
+	if(page.value != 1 || input_val.value.length) {
 		page.value = 1;
+		input_val.value = '';
 		callApi();
 	}
 }
+
+function search() {
+	fetch(`${url}?name=${input_val.value.trim().toUpperCase()}`)
+	.then(resp => resp.json())
+	.then(data => {
+		liste.value = data.ent
+		page_count.value = data.pages
+
+		window.scrollTo({
+			top: 0,
+		});
+	})
+};
+
+
+
 </script>
 
 <template>
 	<main>
 		<form @submit.prevent>
-			<n-input id="search" size="large" status="info" placeholder="Nom de l'entreprise" />
+			<n-input id="search" size="large" status="info" placeholder="Nom de l'entreprise" v-model:value="input_val" @keydown.enter="search()" />
 
-			<n-button id="btn_search" type="primary">
+			<n-button id="btn_search" type="primary" @click="search()">
 				<template #icon>
 					<n-icon>
 						<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="10" r="7"></circle><path d="M21 21l-6-6"></path></g></svg>

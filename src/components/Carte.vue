@@ -1,8 +1,10 @@
 <script setup>
 import { useApiStore } from '@/stores/api';
 import { useEntrepriseStore } from '@/stores/entreprise';
+import { useRouter } from 'vue-router';
 
 const url = useApiStore().url;
+const router = useRouter();
 
 defineProps({
     title: {
@@ -23,7 +25,8 @@ function getOneEnt(id) {
     fetch(`${url}/${id}`)
     .then(resp => resp.json())
 	.then(data => {
-        console.log(data)
+        useEntrepriseStore().ent = data;
+        router.push('/entreprise');
 	});
 }
 
@@ -56,5 +59,4 @@ function getOneEnt(id) {
         height: 290px;
         width: 290px;
     }
-
 </style>
