@@ -9,9 +9,9 @@ import { RouterLink } from 'vue-router'
                 Ka App
             </RouterLink>
 
-            <RouterLink to="/entreprise">
+            <a href="https://www.linkedin.com/in/fabiodevcode/" target="_blank">
                 by Fabvio R. LOPES
-            </RouterLink>
+            </a>
         </div>
     </header>
 </template>

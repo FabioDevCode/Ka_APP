@@ -1,15 +1,43 @@
 <script setup>
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
-import { useEntrepriseStore } from '@/stores/entreprise';
-import { onMounted } from "vue";
+import { useApiStore } from '@/stores/api';
+import { onMounted, ref } from "vue";
+import { useRoute } from 'vue-router';
 
-const ent = useEntrepriseStore().ent;
+const url = useApiStore().url;
+const { id } = useRoute().params;
 
-onMounted(() => {
-	if(ent.latitude && ent.longitude) {
+let ent = ref({
+	id: 0,
+	nom_raison_sociale: "",
+	siren: "",
+	siret: "",
+	complement_adresse: "",
+	numero_voie: "",
+	type_voie: "",
+	libelle_voie: "",
+	code_postal: "",
+	libelle_commune: "",
+	nombre_etablissements: "",
+	finances_annee: "",
+	finances_ca: "",
+	latitude: "",
+	longitude: "",
+	image: ""
+});
+
+onMounted(async() => {
+	const call = await fetch(`${url}/${id}`)
+	const data = await call.json()
+
+	for(const [key, value] of Object.entries(data)) {
+		ent.value[key] = value
+	}
+
+	if(ent.value.latitude && ent.value.longitude) {
 		const mapOptions = {
-			center: [ent.latitude, ent.longitude],
+			center: [ent.value.latitude, ent.value.longitude],
 			zoom: 14
 		}
 		// Création d'un objet de carte
@@ -17,7 +45,7 @@ onMounted(() => {
 		// Création d'un objet Layer
 		const layer = new L.TileLayer(' http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png' );
 		// Ajout du pointer
-		L.marker([ent.latitude, ent.longitude]).addTo(map)
+		L.marker([ent.value.latitude, ent.value.longitude]).addTo(map)
 		// Ajout d'une couche à la carte
 		map.addLayer(layer);
 	} else {
@@ -111,7 +139,7 @@ onMounted(() => {
 	}
 
 	.ent_top, .ent_bottom {
-		height: 400px;
+		height: 300px;
 	}
 
 	.ent_top_subinfo {
@@ -178,7 +206,7 @@ onMounted(() => {
 	}
 
 	#btn_pdf {
-		margin: 0 auto 50px auto;
+		margin: 0 auto 150px auto;
 	}
 
 	.none_coordonnes {

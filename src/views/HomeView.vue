@@ -3,8 +3,6 @@ import { onMounted, ref } from "vue";
 import { useApiStore } from '@/stores/api';
 import Carte from '@/components/Carte.vue';
 
-localStorage.removeItem('ka_app_ent');
-
 const url = useApiStore().url;
 const LIMIT = 12;
 
